@@ -3,14 +3,15 @@
 # ==========================================================================
 
 import turtle                                                                           #How we draw it!
-PROGNAME = 'Sierpinski Triangle'                                                        #Name of the program
 
 FractalDrawer = turtle.Turtle()                                                         #The object to draw    
 FractalDrawer.ht()                                                                      #The thickness
 FractalDrawer.speed(20)                                                                 #The speed when we draw a Fractal
+turtle.title("Sierpinski Triangle")                                                     #Name of the window
+turtle.bgcolor("white")
 FractalDrawer.pencolor('blue')                                                          #Find the color of the DrawTheTriangle
 
-SetOfPoints = [[-175,-125],[0,175],[175,-125]]                                          #Size of DrawTheTriangle
+SetOfPoints = [[-280,-200],[0,280],[280,-200]]                                          #Size of DrawTheTriangle
 
 def FindMiddlePoint(p1, p2):                                                            #Get the Center of 2 SetOfPoints
     return ( (p1[0]+p2[0]) / 2, (p1[1] + p2[1]) / 2)                                    #Find midpoint
