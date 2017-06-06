@@ -3,12 +3,12 @@
 # ==========================================================================
 
 import turtle                                                                           #How we draw it!
+turtle.title("Sierpinski Triangle")                                                     #Name of the window
+turtle.bgcolor("white")                                                                 #Color of the background
 
 FractalDrawer = turtle.Turtle()                                                         #The object to draw    
 FractalDrawer.ht()                                                                      #The thickness
 FractalDrawer.speed(20)                                                                 #The speed when we draw a Fractal
-turtle.title("Sierpinski Triangle")                                                     #Name of the window
-turtle.bgcolor("white")
 FractalDrawer.pencolor('blue')                                                          #Find the color of the DrawTheTriangle
 
 SetOfPoints = [[-280,-200],[0,280],[280,-200]]                                          #Size of DrawTheTriangle
