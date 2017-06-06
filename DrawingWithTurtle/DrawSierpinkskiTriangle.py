@@ -28,7 +28,7 @@ def DrawTheTriangle(SetOfPoints, Depth):                                        
 
     if (Depth > 0) :                                                                    #If we still have work to do
 
-        Depth = Depth -1                                                                #Remove one level of depthness
+        Depth = Depth - 1                                                               #Remove one level of depthness
 
         DrawTheTriangle (
                 [SetOfPoints[0],                                                        #Find we to start
