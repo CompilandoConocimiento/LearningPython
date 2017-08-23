@@ -49,16 +49,13 @@ def DrawCoodinateSystem (MainWindow, Width, Heigth, ExpandFactor):      #Draw Ca
 # =======       FIND COMPLEX ROOTS       =========
 # ================================================
 
-def FindAngle(a, b):                                                    #Return the correct angle
-    if (a > 0): return atan2(b,a)                                       #If 1 or 4 cuadrant
-    if (b > 0): return (atan2(b,a) + Pi)                                #If 2 cuadrant
-    if (b < 0): return (atan2(b,a) - Pi)                                #If 3 cuadrant
 
 def FindRootsComplex(a, b, n):                                          #Real magic! where z = a+bi
     Solutions = []                                                      #This is where put result
     Module    = sqrt((a*a) + (b*b))                                     #Module of z
-    Angle     = FindAngle(a, b)                                         #Angle of z
+    Angle     = atan2(b,a)                                              #Angle of z
     Module = Module**(1.0/n)                                            #Module for z^(1/n)
+    print "Angle is", Angle
 
     for nSolution in range(0, n):                                       #For each solution
         RealPart      = Module * cos((Angle + (2*(Pi)*nSolution))/n)    #Find real part
@@ -98,7 +95,7 @@ def main():                                                             #Set all
     b = int(input("Imaginare Part of Z: "))                             #Cool input, that's it   
     n = int(input("Number of Roots: "))                                 #Cool input, that's it
     
-    ExpandFactor = (int)(Heigth / (max([a,b])*2) )                      #Set a ExpandFactor
+    ExpandFactor = (int)(Heigth / ((max([a,b])*2)+1))                   #Set a ExpandFactor
     print "Expand factor is ",ExpandFactor                              #Show the ExpandFactor
 
     DrawCoodinateSystem(MainWindow, Width, Heigth, ExpandFactor)        #Draw a coordinate system
