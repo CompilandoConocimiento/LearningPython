@@ -7,11 +7,16 @@ import Card as CardClass
 import random
 
 
+P1Cards = list()
+P2Cards = list()
+
+
 
 class PlayPokerFrame(WX.Frame):
     """
     A Frame that show the cards for 2 players
     """
+
 
     def __init__(self, *args, **kw):
         
@@ -31,30 +36,28 @@ class PlayPokerFrame(WX.Frame):
         PanelFont = PanelFont.Bold()
         PanelTitle.SetFont(PanelFont)
 
+        self.Cards = CardClass.Card.CreateDeckOfCards()
+        random.shuffle(self.Cards)
 
-        Cards = CardClass.Card.GetRandomCards()
-        random.shuffle(Cards)
 
         # =============================
         # ===    CARDS PLAYER 1   =====
         # =============================
-        CardsPlayer1 = Cards[0:5]
+        CardsPlayer1 = self.Cards[0:5]
 
         CardsPlayer1String = ""
 
         Counter = 70
         for MiniCard in CardsPlayer1:
             
-            CardsPlayer1String = MiniCard.getUnicodeAndColor()[0]
+            CardsPlayer1String = MiniCard.getUnicode()
 
             Player1Card = WX.StaticText(PlayPokerPanel, label=CardsPlayer1String, pos=(Counter,150))
+            P1Cards.append((MiniCard, Player1Card))
             Card1Font = Player1Card.GetFont()
             Card1Font.SetPointSize(150) 
             Player1Card.SetFont(Card1Font)
-            ColorCardStr = MiniCard.getUnicodeAndColor()[1]
-            if ColorCardStr == "Red": ColorCard = (211,47,47)
-            else: ColorCard = (33,33,33)
-            Player1Card.SetForegroundColour(ColorCard)
+            Player1Card.SetForegroundColour(MiniCard.getColorAsRGB())
 
             Counter += 120
 
@@ -69,23 +72,21 @@ class PlayPokerFrame(WX.Frame):
         # =============================
         # ===    CARDS PLAYER 2   =====
         # =============================
-        CardsPlayer2 = Cards[5:10]
+        CardsPlayer2 = self.Cards[5:10]
 
         CardsPlayer2String = ""
 
         Counter = 70
         for MiniCard in CardsPlayer2:
             
-            CardsPlayer2String = MiniCard.getUnicodeAndColor()[0]
+            CardsPlayer2String = MiniCard.getUnicode()
 
             Player2Card = WX.StaticText(PlayPokerPanel, label=CardsPlayer2String, pos=(Counter,350))
+            P2Cards.append((MiniCard, Player2Card))
             Card2Font = Player2Card.GetFont()
             Card2Font.SetPointSize(150) 
             Player2Card.SetFont(Card2Font)
-            ColorCardStr = MiniCard.getUnicodeAndColor()[1]
-            if ColorCardStr == "Red": ColorCard = (211,47,47)
-            else: ColorCard = (33,33,33)
-            Player2Card.SetForegroundColour(ColorCard)
+            Player2Card.SetForegroundColour(MiniCard.getColorAsRGB())
 
             Counter += 120
 
@@ -93,9 +94,7 @@ class PlayPokerFrame(WX.Frame):
         Player2Title.SetForegroundColour((40,53,147))
         Player2TitleFont = Player1Title.GetFont()
         Player2TitleFont.SetPointSize(25) 
-        Player2TitleFont = Player2TitleFont.Bold()
         Player2Title.SetFont(Player2TitleFont)
-
 
 
         # Create a menu bar
@@ -104,6 +103,7 @@ class PlayPokerFrame(WX.Frame):
         # And a status bar
         self.CreateStatusBar()
         self.SetStatusText("Play Poker")
+        self.NextAvailableCard = 10
 
 
     def makeMenuBar(self):
@@ -118,8 +118,7 @@ class PlayPokerFrame(WX.Frame):
 
         #=== GAME MENU ====
         GameMenu = WX.Menu()
-
-        RestartItem = GameMenu.Append(-1, "&Restart\tCtrl-R")
+        FinishItem  = GameMenu.Append(-1, "&Finish Game\tCtrl-F")
         GameMenu.AppendSeparator()
 
         #=== GENERAL MENU ====
@@ -134,9 +133,9 @@ class PlayPokerFrame(WX.Frame):
         self.SetMenuBar(menuBar)
         
         #=== BIND ====
-        self.Bind(WX.EVT_MENU, self.OnChangeCards, ChangeCardPlayer1)
-        self.Bind(WX.EVT_MENU, self.OnChangeCards, ChangeCardPlayer2)
-        self.Bind(WX.EVT_MENU, self.OnRestart, RestartItem)
+        self.Bind(WX.EVT_MENU, lambda event: self.OnChangeCards(event, 1), ChangeCardPlayer1)
+        self.Bind(WX.EVT_MENU, lambda event: self.OnChangeCards(event, 2), ChangeCardPlayer2)
+        self.Bind(WX.EVT_MENU, self.OnFinish, FinishItem)
         self.Bind(WX.EVT_MENU, self.OnExit,  exitItem)
         self.Bind(WX.EVT_MENU, self.OnAbout, aboutItem)
 
@@ -145,27 +144,58 @@ class PlayPokerFrame(WX.Frame):
         self.Close(True)
 
 
-    def OnRestart(self, event):
-        RestartDialog = WX.MessageDialog(self, "Restarting App", "Playing Poker", WX.OK)
-        RestartDialog.ShowModal()
-        RestartDialog.Destroy()
+    def OnFinish(self, event):
 
-    def OnChangeCards(self, event):
-        DialogCard = WX.TextEntryDialog(None, 'What card you want to change?')
+
+        for Card in P1Cards:
+            print(Card[0].getUnicode())
+
+        print("")
+        for Card in P2Cards:
+            print(Card[0].getUnicode())
+
+
+
+    def OnChangeCards(self, event, Player):
+        DialogCard = WX.TextEntryDialog(None, f'What card do you want to change Player {Player}?')
         DialogCard.ShowModal()
         ResultStr = DialogCard.GetValue()
         DialogCard.Destroy()
 
+        CardToChange = 0
+        Error = False
         try: 
-            Result = int(ResultStr)
-            Result -= 1
+            CardToChange = int(ResultStr) - 1
+
+            if (CardToChange < 0 or CardToChange > 4):
+                Error = True
         except ValueError:
-            return 0
+            Error = True
 
+        if (Error):
+            WX.MessageBox("Not valid card, please select a number from 0 to 5",
+            "Change Cards",
+            WX.OK|WX.ICON_INFORMATION)
 
-        print(f'Your name was {Result}')
+            return;
 
-        return Result
+        if (self.NextAvailableCard == 52):
+            WX.MessageBox("No more cards",
+            "Change Cards",
+            WX.OK|WX.ICON_INFORMATION)
+
+            return;
+
+        MiniCard = self.Cards[self.NextAvailableCard]
+        CardString = MiniCard.getUnicode()
+        self.NextAvailableCard += 1
+
+        if (Player == 1): PlayerCards = P1Cards
+        else: PlayerCards = P2Cards
+
+        PlayerCards[CardToChange][1].SetForegroundColour(MiniCard.getColorAsRGB())
+        PlayerCards[CardToChange][1].SetLabel(CardString)
+        PlayerCards[CardToChange] = (MiniCard, PlayerCards[CardToChange][1])
 
 
     def OnAbout(self, event):
@@ -175,6 +205,10 @@ class PlayPokerFrame(WX.Frame):
             like this, I don't know what I'm doing""",
             "Play Poker",
             WX.OK|WX.ICON_INFORMATION)
+
+
+
+
 
 
 

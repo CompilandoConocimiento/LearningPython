@@ -1,13 +1,61 @@
-
+"""=========================================================
+===============        CARD CLASS       ====================
+========================================================="""
 class Card:
+    """
+    Class modelate a poker card, it has esscencially 3 important
+    features:
+    - Type
+    - Color
+    - Number
+    """
+
+    """===========================================
+    =========   CREATE A DECK OF CARDS    ========
+    ==========================================="""
+    @staticmethod
+    def CreateDeckOfCards():
+        """
+        This create a list with all the cards in the Deck
+
+        Returns:
+            List of Cards: All the possible cards in a deck, and "semi" sorted
+        """
+
+        Data = list()
+
+        for Type in ["Hearts", "Diamonds"]:
+            for Number in range(1, 14):
+                Data.append(Card("Red", Number, Type))
+
+        for Type in ["Spades", "Clubs"]:
+            for Number in range(1, 14):
+                Data.append(Card("Black", Number, Type))
+
+        return Data
+
+
+    """===========================================
+    =========          INIT               ========
+    ==========================================="""
     def __init__(self, Color="Black", Number=1, Type="Diamonds"):
         self._Color = Color
         self._Number = Number
         self._Type = Type
 
 
+    """===========================================
+    =========          GETTERS            ========
+    ==========================================="""
 
-    def getUnicodeAndColor(self):
+    """==============================
+    =======     UNICODE       =======
+    =============================="""
+    def getUnicode(self):
+        """
+        Returns:
+            str: The unicode of the specific card 
+        """
 
         if self._Type == "Spades": TypeLetter = "A"
         elif self._Type == "Hearts": TypeLetter = "B"
@@ -24,19 +72,33 @@ class Card:
 
         UnicodeString = f"0001F0{TypeLetter}{self._Number}"
 
-        return (chr(int(UnicodeString, 16)), self._Color)
+        return chr(int(UnicodeString, 16))
 
-    @staticmethod
-    def GetRandomCards():
 
-        Data = list()
+    """==============================
+    =======     UNICODE       =======
+    =============================="""
+    def getColorAsRGB(self):
+        """
+        Returns:
+            (int, int, int): The RGB of the card 
+        """
 
-        for Type in ["Hearts", "Diamonds"]:
-            for Number in range(1, 14):
-                Data.append(Card("Red", Number, Type))
+        if self._Color == "Red": 
+            return (211,47,47)
+        else: 
+            return (33,33,33)
 
-        for Type in ["Spades", "Clubs"]:
-            for Number in range(1, 14):
-                Data.append(Card("Black", Number, Type))
+    """==============================
+    =======     UNICODE       =======
+    =============================="""
+    def getData(self):
+        """
+        Returns:
+            (int, str): The number and type of the card
+        """
 
-        return Data
+        return (self._Number, self._Type)
+
+
+
