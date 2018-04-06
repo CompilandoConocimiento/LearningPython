@@ -141,18 +141,197 @@ class PlayPokerFrame(WX.Frame):
     ==========================================="""
     def OnFinish(self, event):
 
-        #def IdentifyHand(Data):
+        def IsRoyalFlush(Hand):
+            HandType = Hand[0].type
+            if all(card.type == HandType for card in Hand) == False:
+                return False
+
+            Numbers = {card.number for card in Hand}
+            return True if {13, 12, 11, 10, 1} == Numbers else False
+
+
+        def IsStraightFlush(Hand):
+
+            HandType = Hand[0].type
+            if all(card.type == HandType for card in Hand) == False:
+                return False
+
+            Numbers = [card.number for card in Hand]
+            if (set(Numbers) != 5): return False
+
+            CounterOfFalse = 0
+            for card in Hand:
+                if (card.NextNumber() in Numbers) == False:
+                    CounterOfFalse += 1
+
+            return max(Numbers) if CounterOfFalse == 1 else False
+
+        def IsQuad(Hand):
+
+            Mode = dict()
+            for element in Hand:
+
+                if element.number not in Mode:
+                    Mode[element.number] = 1
+                else:
+                    Mode[element.number] += 1
+                
+                if Mode[element.number] == 4:
+                    return element.number
+
+
+            return False
+
+        def IsFullHouse(Hand):
+
+            Mode = dict()
+            for element in Hand:
+                if element.number not in Mode:
+                    Mode[element.number] = 1
+                else:
+                    Mode[element.number] += 1
+                
+
+            if set(Mode.values()) == {3, 2}:
+                for key in Mode.keys():
+                    if (Mode[key] == 3): return key
+            return False
+
+        def IsColor(Hand):
+            HandType = Hand[0].type
+            if all(card.type == HandType for card in Hand) == False:
+                return False
+
+            return sorted([card.number for card in Hand])
+
+        def IsStraight(Hand):
+            Numbers = [card.number for card in Hand]
+            if (set(Numbers) != 5): return False
+
+            print(f"Im in Straight an numbers = {Numbers}")
+            CounterOfFalse = 0
+            for card in Hand:
+                print(f"The next of {card.number} is {card.NextNumber()}")
+                if (card.NextNumber() in Numbers) == False:
+                    CounterOfFalse += 1
+
+            return max(Numbers) if CounterOfFalse == 1 else False
+
+        def IsSet(Hand):
+            Mode = dict()
+            for element in Hand:
+                if element.number not in Mode:
+                    Mode[element.number] = 1
+                else:
+                    Mode[element.number] += 1
+                
+
+            if 3 in set(Mode.values()):
+                for key in Mode.keys():
+                    if (Mode[key] == 3): return key
+            return False
+
+        def IsPocket(Hand):
+            Mode = dict()
+            for element in Hand:
+                if element.number not in Mode:
+                    Mode[element.number] = 1
+                else:
+                    Mode[element.number] += 1
+
+            Result = []
+            for key in Mode.keys():
+                if (Mode[key] == 2): Result.append(key)
+
+            if (len(Result) != 2): return False
+
+            return sorted(Result)
+
+            return False
+
+        def IsPair(Hand):
+            Mode = dict()
+            for element in Hand:
+                if element.number not in Mode:
+                    Mode[element.number] = 1
+                else:
+                    Mode[element.number] += 1
+
+            Result = []
+            if 2 in set(Mode.values()):
+                for key in Mode.keys():
+                    if (Mode[key] == 2): Result.append(key)
+
+                return max(Result)
+            else:
+                return False
+
+        def Mapping(Hand):
+            Numbers = [card.number for card in Hand]
+            return sorted(Numbers)
+
+        def ShowDialog(Message):
+            WX.MessageBox(Message,"Winner is..,", WX.OK|WX.ICON_INFORMATION)
+
 
         Player1Cards = [card[0] for card in Player1CardsData]
         Player2Cards = [card[0] for card in Player2CardsData]
 
-        for Data in Player1Cards:
-            print(Data)
+        FindCard = [False, False]
+        FindCard[0] = IsRoyalFlush(Player1Cards)
+        FindCard[1] = IsRoyalFlush(Player2Cards)
 
-        print("")
+        if FindCard[0] != False and FindCard[1] != False:
+            return ShowDialog("The 2 have Royal Flush, Tie")
 
-        for Data in Player2Cards:
-            print(Data)     
+        elif FindCard[0] != False or FindCard[1] != False:
+            return ShowDialog(f"For having a Royal Flush, wins {'Player 1' if FindCard[0] else 'Player 2'}")
+
+        PossibleHands = [
+            [IsStraightFlush, "Straight Flush", False], 
+            [IsQuad, "Quad", False], 
+            [IsFullHouse, "Full House", False],
+            [IsColor, "Color", True],
+            [IsStraight, "Straight", False],
+            [IsSet, "Set", False],
+            [IsPocket, "Pocket", False],
+            [IsPocket, "Pocket", True],
+            [IsPocket, "Pocket", True],
+            [IsPair, "Pair", False],
+            [Mapping, "high card", True]
+        ]
+
+
+        for card in Player1Cards: print(card.getData())
+        for card in Player2Cards: print(card.getData())
+
+        for idea in PossibleHands:
+
+            FindCard[0] = idea[0](Player1Cards)
+            FindCard[1] = idea[0](Player2Cards)
+
+            print(f"Trying {idea[1]}")
+            print(FindCard[0])
+            print(FindCard[1])
+            print()
+
+            if FindCard[0] != False and FindCard[1] != False:
+                if FindCard[0] == FindCard[1]:
+                    return ShowDialog(f"It's a Tie, You 2 have a {idea[1]}")
+
+                if idea[2]:
+                    for i in range(0, 5):
+                        Winner = "Player 1" if FindCard[0][4-i] > FindCard[1][4-i] else "Player 2"
+                    return ShowDialog(f"Winner is by having a higger {idea[1]} {Winner}")
+
+                else:
+                    Winner = "Player 1" if FindCard[0] > FindCard[1] else "Player 2"
+                    return ShowDialog(f"Winner is by having a higger {idea[1]} {Winner}")
+
+            elif FindCard[0] != False or FindCard[1] != False:
+                return ShowDialog(f"For having a {idea[1]}, wins {'Player 1' if FindCard[0] != False else 'Player 2'}")
+
+
 
 
 
@@ -226,141 +405,9 @@ class PlayPokerFrame(WX.Frame):
 ========================================================="""
 if __name__ == '__main__':
 
-
-    def IsRoyalFlush(Hand):
-        HandType = Hand[0].type
-        if all(card.type == HandType for card in Hand) == False:
-            return False
-
-        Numbers = {card.number for card in Hand}
-        return True if {13, 12, 11, 10, 1} == Numbers else False
-
-
-    def IsStraightFlush(Hand):
-
-        HandType = Hand[0].type
-        if all(card.type == HandType for card in Hand) == False:
-            return False
-
-        Numbers = {card.number for card in Hand}
-
-        CounterOfFalse = 0
-        for card in Hand:
-            if (card.NextNumber() in Numbers) == False:
-                CounterOfFalse += 1
-
-        return max(Numbers) if CounterOfFalse == 1 else False
-
-    def IsQuad(Hand):
-
-        Mode = dict()
-        for element in Hand:
-            if element.number not in Mode:
-                Mode[element.number] = 1
-            else:
-                Mode[element.number] += 1
-            
-            if Mode[element.number] == 4:
-                return element.number
-
-        return False
-
-    def IsFullHouse(Hand):
-
-        Mode = dict()
-        for element in Hand:
-            if element.number not in Mode:
-                Mode[element.number] = 1
-            else:
-                Mode[element.number] += 1
-            
-
-        if set(Mode.values()) == {3, 2}:
-            for key in Mode.keys():
-                if (Mode[key] == 3): return key
-        return False
-
-    def IsColor(Hand):
-        HandType = Hand[0].type
-        if all(card.type == HandType for card in Hand) == False:
-            return False
-
-        return sorted([card.number for card in Hand])
-
-    def IsStraight(Hand):
-        Numbers = {card.number for card in Hand}
-
-        CounterOfFalse = 0
-        for card in Hand:
-            if (card.NextNumber() in Numbers) == False:
-                CounterOfFalse += 1
-
-        return max(Numbers) if CounterOfFalse == 1 else False
-
-    def IsSet(Hand):
-        Mode = dict()
-        for element in Hand:
-            if element.number not in Mode:
-                Mode[element.number] = 1
-            else:
-                Mode[element.number] += 1
-            
-
-        if 3 in set(Mode.values()):
-            for key in Mode.keys():
-                if (Mode[key] == 3): return key
-        return False
-
-    def IsPocket(Hand):
-        Mode = dict()
-        for element in Hand:
-            if element.number not in Mode:
-                Mode[element.number] = 1
-            else:
-                Mode[element.number] += 1
-
-        Result = []
-        if 2 in set(Mode.values()):
-            for key in Mode.keys():
-                if (Mode[key] == 2): Result.append(key)
-
-            return Result
-
-        return False
-
-    def IsPair(Hand):
-        Mode = dict()
-        for element in Hand:
-            if element.number not in Mode:
-                Mode[element.number] = 1
-            else:
-                Mode[element.number] += 1
-
-        Result = []
-        if 2 in set(Mode.values()):
-            for key in Mode.keys():
-                if (Mode[key] == 2): Result.append(key)
-
-            return max(Result)
-
-
-    Hand = [
-        CardClass.Card("Black", 3, "s"),
-        CardClass.Card("Black", 4, "Diamonds"),
-        CardClass.Card("Black", 4, "h"),
-        CardClass.Card("Black", 3, "Diamonds"),
-        CardClass.Card("Black", 1, "Diamonds")
-    ]
-    print(IsPair(Hand))
-
-    
-    
-    """
     PlayPokerApp = WX.App()
     SimpleGame = PlayPokerFrame(None, title='Play Poker')
     SimpleGame.Show()
 
     PlayPokerApp.MainLoop()
-    """
-
 

@@ -40,8 +40,13 @@ class Card:
     ==========================================="""
     def __init__(self, Color="Black", Number=1, Type="Diamonds"):
         self._Color = Color
-        self._Number = Number
         self._Type = Type
+        
+        if Number == 10: self._Number = "A"
+        elif Number == 11: self._Number = "B"
+        elif Number == 12: self._Number = "D"
+        elif Number == 13: self._Number = "E"
+        else: self._Number = str(Number)
 
 
     """===========================================
@@ -61,14 +66,6 @@ class Card:
         elif self._Type == "Hearts": TypeLetter = "B"
         elif self._Type == "Diamonds": TypeLetter = "C"
         elif self._Type == "Clubs": TypeLetter = "D"
-
-        if self._Number == 10: self._Number = "A"
-        elif self._Number == 11: self._Number = "B"
-        elif self._Number == 12: self._Number = "C"
-        elif self._Number == 13: self._Number = "D"
-        elif self._Number == 14: self._Number = "E"
-        elif self._Number == 15: self._Number = "F"
-        else: self._Number = str(self._Number)
 
         UnicodeString = f"0001F0{TypeLetter}{self._Number}"
 
@@ -107,10 +104,35 @@ class Card:
 
     @property
     def number(self):
-        return self._Number
+        if self._Number == "1": return 1
+        elif self._Number == "2": return 2
+        elif self._Number == "3": return 3
+        elif self._Number == "4": return 4
+        elif self._Number == "5": return 5
+        elif self._Number == "6": return 6
+        elif self._Number == "7": return 7
+        elif self._Number == "8": return 8
+        elif self._Number == "9": return 9
+        elif self._Number == "A": return 10
+        elif self._Number == "B": return 11
+        elif self._Number == "D": return 12
+        elif self._Number == "E": return 13
+        return 13
 
     def NextNumber(self):
-        return 1 if self._Number == 13 else self._Number + 1
+        if self._Number == "1": return 2
+        elif self._Number == "2": return 3
+        elif self._Number == "3": return 4
+        elif self._Number == "4": return 5
+        elif self._Number == "5": return 6
+        elif self._Number == "6": return 7
+        elif self._Number == "7": return 8
+        elif self._Number == "8": return 9
+        elif self._Number == "9": return 10
+        elif self._Number == "A": return 11
+        elif self._Number == "B": return 12
+        elif self._Number == "D": return 13
+        return 1
 
 
 
