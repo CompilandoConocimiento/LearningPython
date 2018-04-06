@@ -24,13 +24,9 @@ class Card:
 
         Data = list()
 
-        for Type in ["Hearts", "Diamonds"]:
+        for Type in ["Hearts", "Diamonds", "Spades", "Clubs"]:
             for Number in range(1, 14):
-                Data.append(Card("Red", Number, Type))
-
-        for Type in ["Spades", "Clubs"]:
-            for Number in range(1, 14):
-                Data.append(Card("Black", Number, Type))
+                Data.append(Card(Number, Type))
 
         return Data
 
@@ -38,10 +34,15 @@ class Card:
     """===========================================
     =========          INIT               ========
     ==========================================="""
-    def __init__(self, Color="Black", Number=1, Type="Diamonds"):
-        self._Color = Color
-        self._Type = Type
+    def __init__(self, Number=1, Type="Diamonds"):
+
+
+        self._Type = Type if Type in {"Diamonds", "Spades", "Hearts", "Clubs"} else "Diamonds" 
+        if self._Type in {"Diamonds", "Hearts"}: self._Color = "Red"
+        else: self._Color = "Black"
         
+        if (Number < 1 or Number > 13): Number = 1
+
         if Number == 10: self._Number = "A"
         elif Number == 11: self._Number = "B"
         elif Number == 12: self._Number = "D"
@@ -104,35 +105,21 @@ class Card:
 
     @property
     def number(self):
-        if self._Number == "1": return 1
-        elif self._Number == "2": return 2
-        elif self._Number == "3": return 3
-        elif self._Number == "4": return 4
-        elif self._Number == "5": return 5
-        elif self._Number == "6": return 6
-        elif self._Number == "7": return 7
-        elif self._Number == "8": return 8
-        elif self._Number == "9": return 9
-        elif self._Number == "A": return 10
-        elif self._Number == "B": return 11
-        elif self._Number == "D": return 12
-        elif self._Number == "E": return 13
-        return 13
+        Keys = dict([
+            ("1", 1), ("2", 2), ("3", 3), ("4", 4), ("5", 5), 
+            ("6", 6), ("7", 7), ("8", 8), ("9", 9), ("A", 10), 
+            ("B", 11), ("D", 12), ("E", 13)
+        ])
+        return Keys[self._Number]
 
     def NextNumber(self):
-        if self._Number == "1": return 2
-        elif self._Number == "2": return 3
-        elif self._Number == "3": return 4
-        elif self._Number == "4": return 5
-        elif self._Number == "5": return 6
-        elif self._Number == "6": return 7
-        elif self._Number == "7": return 8
-        elif self._Number == "8": return 9
-        elif self._Number == "9": return 10
-        elif self._Number == "A": return 11
-        elif self._Number == "B": return 12
-        elif self._Number == "D": return 13
-        return 1
+        Keys = dict([
+            ("1", 2), ("2", 3), ("3", 4), ("4", 5), ("5", 6), 
+            ("6", 7), ("7", 8), ("8", 9), ("9", 10), ("A", 11), 
+            ("B", 12), ("D", 13), ("E", 1)
+        ])
+        return Keys[self._Number]
+
 
 
 

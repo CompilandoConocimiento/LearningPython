@@ -143,8 +143,10 @@ class PlayPokerFrame(WX.Frame):
 
         def IsRoyalFlush(Hand):
             HandType = Hand[0].type
+
             if all(card.type == HandType for card in Hand) == False:
                 return False
+
 
             Numbers = {card.number for card in Hand}
             return True if {13, 12, 11, 10, 1} == Numbers else False
@@ -157,7 +159,7 @@ class PlayPokerFrame(WX.Frame):
                 return False
 
             Numbers = [card.number for card in Hand]
-            if (set(Numbers) != 5): return False
+            if (len(set(Numbers)) != 5): return False
 
             CounterOfFalse = 0
             for card in Hand:
@@ -206,12 +208,10 @@ class PlayPokerFrame(WX.Frame):
 
         def IsStraight(Hand):
             Numbers = [card.number for card in Hand]
-            if (set(Numbers) != 5): return False
+            if (len(set(Numbers)) != 5): return False
 
-            print(f"Im in Straight an numbers = {Numbers}")
             CounterOfFalse = 0
             for card in Hand:
-                print(f"The next of {card.number} is {card.NextNumber()}")
                 if (card.NextNumber() in Numbers) == False:
                     CounterOfFalse += 1
 
@@ -271,7 +271,7 @@ class PlayPokerFrame(WX.Frame):
             return sorted(Numbers)
 
         def ShowDialog(Message):
-            WX.MessageBox(Message,"Winner is..,", WX.OK|WX.ICON_INFORMATION)
+            WX.MessageBox(Message,"Winner is...", WX.OK|WX.ICON_INFORMATION)
 
 
         Player1Cards = [card[0] for card in Player1CardsData]
@@ -298,22 +298,22 @@ class PlayPokerFrame(WX.Frame):
             [IsPocket, "Pocket", True],
             [IsPocket, "Pocket", True],
             [IsPair, "Pair", False],
-            [Mapping, "high card", True]
+            [Mapping, "card", True]
         ]
 
 
-        for card in Player1Cards: print(card.getData())
-        for card in Player2Cards: print(card.getData())
+        #for card in Player1Cards: print(card.getData())
+        #for card in Player2Cards: print(card.getData())
 
         for idea in PossibleHands:
 
             FindCard[0] = idea[0](Player1Cards)
             FindCard[1] = idea[0](Player2Cards)
 
-            print(f"Trying {idea[1]}")
-            print(FindCard[0])
-            print(FindCard[1])
-            print()
+            #print(f"Trying {idea[1]}")
+            #print(FindCard[0])
+            #print(FindCard[1])
+            #print()
 
             if FindCard[0] != False and FindCard[1] != False:
                 if FindCard[0] == FindCard[1]:
@@ -321,19 +321,20 @@ class PlayPokerFrame(WX.Frame):
 
                 if idea[2]:
                     for i in range(0, 5):
-                        Winner = "Player 1" if FindCard[0][4-i] > FindCard[1][4-i] else "Player 2"
-                    return ShowDialog(f"Winner is by having a higger {idea[1]} {Winner}")
+                        if FindCard[0][4-i] > FindCard[1][4-i]: Winner = "Player 1"
+                        elif FindCard[0][4-i] < FindCard[1][4-i]: Winner = "Player 2"
+                        else: continue
+                        break
+
+                    return ShowDialog(f"Winner is by having a higger {idea[1]} the {Winner}")
 
                 else:
                     Winner = "Player 1" if FindCard[0] > FindCard[1] else "Player 2"
-                    return ShowDialog(f"Winner is by having a higger {idea[1]} {Winner}")
+                    return ShowDialog(f"Winner is by having a higger {idea[1]} the {Winner}")
 
             elif FindCard[0] != False or FindCard[1] != False:
-                return ShowDialog(f"For having a {idea[1]}, wins {'Player 1' if FindCard[0] != False else 'Player 2'}")
-
-
-
-
+                Winner = 'Player 1' if FindCard[0] != False else 'Player 2'
+                return ShowDialog(f"For having a {idea[1]}, wins {Winner}")
 
 
     """===========================================
