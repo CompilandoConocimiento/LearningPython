@@ -101,4 +101,16 @@ class Card:
         return (self._Number, self._Type)
 
 
+    @property
+    def type(self):
+        return self._Type
+
+    @property
+    def number(self):
+        return self._Number
+
+    def NextNumber(self):
+        return 1 if self._Number == 13 else self._Number + 1
+
+
 

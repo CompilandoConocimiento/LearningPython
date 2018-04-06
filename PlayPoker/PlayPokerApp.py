@@ -1,23 +1,27 @@
-"""=========================================================
-===============        PLAY POKER       ====================
-========================================================="""
+"""==============================================================================
+===========================        PLAY POKER       =============================
+=============================================================================="""
 
 import wx as WX
 import Card as CardClass
 import random
 
 
-P1Cards = list()
-P2Cards = list()
+Player1CardsData = list()
+Player2CardsData = list()
 
 
-
+"""=========================================================
+===============       PLAY POKER        ====================
+========================================================="""
 class PlayPokerFrame(WX.Frame):
     """
-    A Frame that show the cards for 2 players
+    A Frame that show the cards for 2 players, just that
     """
 
-
+    """===========================================
+    =============        INIT        =============
+    ==========================================="""
     def __init__(self, *args, **kw):
         
         # Ensure the parent's __init__ is called
@@ -27,7 +31,7 @@ class PlayPokerFrame(WX.Frame):
         PlayPokerPanel = WX.Panel(self)
         self.SetBackgroundColour((102,187,106))
 
-        # Make Title Look
+        # ====  Make Title Look ======
         PanelTitle = WX.StaticText(PlayPokerPanel, label="Play Poker", pos=(25,5))
         PanelTitle.SetForegroundColour((27,94,32))
         PanelTitle.GetFont().SetPointSize(2300)
@@ -39,62 +43,43 @@ class PlayPokerFrame(WX.Frame):
         self.Cards = CardClass.Card.CreateDeckOfCards()
         random.shuffle(self.Cards)
 
+        """===========================================
+        ===========   PLAYER DATA        =============
+        ==========================================="""
+        for Player in range(1, 3):
 
-        # =============================
-        # ===    CARDS PLAYER 1   =====
-        # =============================
-        CardsPlayer1 = self.Cards[0:5]
+            DataList = Player1CardsData if Player == 1 else Player2CardsData
+            YCoordinate = 150 if Player == 1 else 350
+            HeaderTitle = (60, 120) if Player == 1 else (60, 330)
+            HeaderLabel = f"Player {Player} Cards"
+            InitialCards = self.Cards[0:5] if Player == 1 else self.Cards[5:10]
 
-        CardsPlayer1String = ""
+            PlayerTitle = WX.StaticText(PlayPokerPanel, label=HeaderLabel, pos=HeaderTitle)
+            PlayerTitle.SetForegroundColour((40,53,147))
 
-        Counter = 70
-        for MiniCard in CardsPlayer1:
-            
-            CardsPlayer1String = MiniCard.getUnicode()
+            PlayerTitleFontFont = PlayerTitle.GetFont()
+            PlayerTitleFontFont.SetPointSize(25) 
+            PlayerTitleFontFont = PlayerTitleFontFont.Bold()
 
-            Player1Card = WX.StaticText(PlayPokerPanel, label=CardsPlayer1String, pos=(Counter,150))
-            P1Cards.append((MiniCard, Player1Card))
-            Card1Font = Player1Card.GetFont()
-            Card1Font.SetPointSize(150) 
-            Player1Card.SetFont(Card1Font)
-            Player1Card.SetForegroundColour(MiniCard.getColorAsRGB())
+            PlayerTitle.SetFont(PlayerTitleFontFont)
 
-            Counter += 120
+            """===========================================
+            ===========   PRINT EACH CARD    =============
+            ==========================================="""
+            Counter = 70
+            for card in InitialCards:
 
-        Player1Title = WX.StaticText(PlayPokerPanel, label="Player 1 Cards", pos=(60, 120))
-        Player1Title.SetForegroundColour((40,53,147))
-        Player1TitleFontFont = Player1Title.GetFont()
-        Player1TitleFontFont.SetPointSize(25) 
-        Player1TitleFontFont = Player1TitleFontFont.Bold()
-        Player1Title.SetFont(Player1TitleFontFont)
+                Coordinate = (Counter, YCoordinate)
+                WXCard = WX.StaticText(PlayPokerPanel, label=card.getUnicode(), pos=Coordinate)
+                DataList.append((card, WXCard))
 
+                CardFont = WXCard.GetFont()
+                CardFont.SetPointSize(150)
 
-        # =============================
-        # ===    CARDS PLAYER 2   =====
-        # =============================
-        CardsPlayer2 = self.Cards[5:10]
+                WXCard.SetFont(CardFont)
+                WXCard.SetForegroundColour(card.getColorAsRGB())
 
-        CardsPlayer2String = ""
-
-        Counter = 70
-        for MiniCard in CardsPlayer2:
-            
-            CardsPlayer2String = MiniCard.getUnicode()
-
-            Player2Card = WX.StaticText(PlayPokerPanel, label=CardsPlayer2String, pos=(Counter,350))
-            P2Cards.append((MiniCard, Player2Card))
-            Card2Font = Player2Card.GetFont()
-            Card2Font.SetPointSize(150) 
-            Player2Card.SetFont(Card2Font)
-            Player2Card.SetForegroundColour(MiniCard.getColorAsRGB())
-
-            Counter += 120
-
-        Player2Title = WX.StaticText(PlayPokerPanel, label="Player 2 Cards", pos=(60, 330))
-        Player2Title.SetForegroundColour((40,53,147))
-        Player2TitleFont = Player1Title.GetFont()
-        Player2TitleFont.SetPointSize(25) 
-        Player2Title.SetFont(Player2TitleFont)
+                Counter += 120
 
 
         # Create a menu bar
@@ -106,6 +91,9 @@ class PlayPokerFrame(WX.Frame):
         self.NextAvailableCard = 10
 
 
+    """===========================================
+    =======        MAKE A MENU BAR       =========
+    ==========================================="""
     def makeMenuBar(self):
 
         #=== OPTIONS MENU ====
@@ -139,24 +127,41 @@ class PlayPokerFrame(WX.Frame):
         self.Bind(WX.EVT_MENU, self.OnExit,  exitItem)
         self.Bind(WX.EVT_MENU, self.OnAbout, aboutItem)
 
+
+    """===========================================
+    =======            ON EXIT           =========
+    ==========================================="""
     def OnExit(self, event):
         """Close the frame, terminating the PlayPokerApplication."""
         self.Close(True)
 
 
+    """===========================================
+    =======          ON FINISH           =========
+    ==========================================="""
     def OnFinish(self, event):
 
+        #def IdentifyHand(Data):
 
-        for Card in P1Cards:
-            print(Card[0].getUnicode())
+        Player1Cards = [card[0] for card in Player1CardsData]
+        Player2Cards = [card[0] for card in Player2CardsData]
+
+        for Data in Player1Cards:
+            print(Data)
 
         print("")
-        for Card in P2Cards:
-            print(Card[0].getUnicode())
+
+        for Data in Player2Cards:
+            print(Data)     
 
 
 
+
+    """===========================================
+    =======      TO CHANGE CARDS         =========
+    ==========================================="""
     def OnChangeCards(self, event, Player):
+        
         DialogCard = WX.TextEntryDialog(None, f'What card do you want to change Player {Player}?')
         DialogCard.ShowModal()
         ResultStr = DialogCard.GetValue()
@@ -186,18 +191,20 @@ class PlayPokerFrame(WX.Frame):
 
             return;
 
-        MiniCard = self.Cards[self.NextAvailableCard]
-        CardString = MiniCard.getUnicode()
+        card = self.Cards[self.NextAvailableCard]
+        CardString = card.getUnicode()
         self.NextAvailableCard += 1
 
-        if (Player == 1): PlayerCards = P1Cards
-        else: PlayerCards = P2Cards
+        PlayerCards = Player1CardsData if Player == 1 else Player2CardsData
 
-        PlayerCards[CardToChange][1].SetForegroundColour(MiniCard.getColorAsRGB())
+        PlayerCards[CardToChange][1].SetForegroundColour(card.getColorAsRGB())
         PlayerCards[CardToChange][1].SetLabel(CardString)
-        PlayerCards[CardToChange] = (MiniCard, PlayerCards[CardToChange][1])
+        PlayerCards[CardToChange] = (card, PlayerCards[CardToChange][1])
 
 
+    """===========================================
+    =======          ON ABOUT            =========
+    ==========================================="""
     def OnAbout(self, event):
         """Display an About Dialog"""
         WX.MessageBox("""
@@ -214,17 +221,146 @@ class PlayPokerFrame(WX.Frame):
 
 
 
-
 """=========================================================
 ===============            'MAIN'          =================
 ========================================================="""
-
 if __name__ == '__main__':
+
+
+    def IsRoyalFlush(Hand):
+        HandType = Hand[0].type
+        if all(card.type == HandType for card in Hand) == False:
+            return False
+
+        Numbers = {card.number for card in Hand}
+        return True if {13, 12, 11, 10, 1} == Numbers else False
+
+
+    def IsStraightFlush(Hand):
+
+        HandType = Hand[0].type
+        if all(card.type == HandType for card in Hand) == False:
+            return False
+
+        Numbers = {card.number for card in Hand}
+
+        CounterOfFalse = 0
+        for card in Hand:
+            if (card.NextNumber() in Numbers) == False:
+                CounterOfFalse += 1
+
+        return max(Numbers) if CounterOfFalse == 1 else False
+
+    def IsQuad(Hand):
+
+        Mode = dict()
+        for element in Hand:
+            if element.number not in Mode:
+                Mode[element.number] = 1
+            else:
+                Mode[element.number] += 1
+            
+            if Mode[element.number] == 4:
+                return element.number
+
+        return False
+
+    def IsFullHouse(Hand):
+
+        Mode = dict()
+        for element in Hand:
+            if element.number not in Mode:
+                Mode[element.number] = 1
+            else:
+                Mode[element.number] += 1
+            
+
+        if set(Mode.values()) == {3, 2}:
+            for key in Mode.keys():
+                if (Mode[key] == 3): return key
+        return False
+
+    def IsColor(Hand):
+        HandType = Hand[0].type
+        if all(card.type == HandType for card in Hand) == False:
+            return False
+
+        return sorted([card.number for card in Hand])
+
+    def IsStraight(Hand):
+        Numbers = {card.number for card in Hand}
+
+        CounterOfFalse = 0
+        for card in Hand:
+            if (card.NextNumber() in Numbers) == False:
+                CounterOfFalse += 1
+
+        return max(Numbers) if CounterOfFalse == 1 else False
+
+    def IsSet(Hand):
+        Mode = dict()
+        for element in Hand:
+            if element.number not in Mode:
+                Mode[element.number] = 1
+            else:
+                Mode[element.number] += 1
+            
+
+        if 3 in set(Mode.values()):
+            for key in Mode.keys():
+                if (Mode[key] == 3): return key
+        return False
+
+    def IsPocket(Hand):
+        Mode = dict()
+        for element in Hand:
+            if element.number not in Mode:
+                Mode[element.number] = 1
+            else:
+                Mode[element.number] += 1
+
+        Result = []
+        if 2 in set(Mode.values()):
+            for key in Mode.keys():
+                if (Mode[key] == 2): Result.append(key)
+
+            return Result
+
+        return False
+
+    def IsPair(Hand):
+        Mode = dict()
+        for element in Hand:
+            if element.number not in Mode:
+                Mode[element.number] = 1
+            else:
+                Mode[element.number] += 1
+
+        Result = []
+        if 2 in set(Mode.values()):
+            for key in Mode.keys():
+                if (Mode[key] == 2): Result.append(key)
+
+            return max(Result)
+
+
+    Hand = [
+        CardClass.Card("Black", 3, "s"),
+        CardClass.Card("Black", 4, "Diamonds"),
+        CardClass.Card("Black", 4, "h"),
+        CardClass.Card("Black", 3, "Diamonds"),
+        CardClass.Card("Black", 1, "Diamonds")
+    ]
+    print(IsPair(Hand))
+
     
+    
+    """
     PlayPokerApp = WX.App()
-    frm = PlayPokerFrame(None, title='Play Poker')
-    frm.Show()
+    SimpleGame = PlayPokerFrame(None, title='Play Poker')
+    SimpleGame.Show()
 
     PlayPokerApp.MainLoop()
+    """
 
 
