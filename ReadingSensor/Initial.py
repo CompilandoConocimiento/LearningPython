@@ -32,18 +32,36 @@ class SeeSensorFrame(WX.Frame):
         super(SeeSensorFrame, self).__init__(*args, **kw, size=(900,600))
 
         # Create a panel in the frame
-        PlayPokerPanel = WX.Panel(self)
-        self.SetBackgroundColour((102,187,106))
+        self.ReadingSensorPanel = WX.Panel(self)
+        self.SetBackgroundColour((38,50,56))
 
         # ====  Make Title Look ======
-        PanelTitle = WX.StaticText(PlayPokerPanel, label="See Sensor", pos=(25,5))
-        PanelTitle.SetForegroundColour((27,94,32))
+        PanelTitle = WX.StaticText(self.ReadingSensorPanel, label="Sensor: ", pos=(25,5))
+        PanelTitle.SetForegroundColour((232,245,233))
         PanelTitle.GetFont().SetPointSize(2300)
         PanelFont = PanelTitle.GetFont()
         PanelFont.SetPointSize(50) 
         PanelFont = PanelFont.Bold()
         PanelTitle.SetFont(PanelFont)
 
+        # ==== SensorName ======
+        self.SensorTitle = WX.StaticText(self.ReadingSensorPanel, label="Temperature", pos=(225,5))
+        self.SensorTitle.SetForegroundColour((165,214,167))
+        self.SensorTitle.GetFont().SetPointSize(2300)
+        SensorNameFont = self.SensorTitle.GetFont()
+        SensorNameFont.SetPointSize(50) 
+        SensorNameFont = SensorNameFont.Bold()
+        self.SensorTitle.SetFont(SensorNameFont)
+
+
+        # ==== SensorName ======
+        self.MeasureTitle = WX.StaticText(self.ReadingSensorPanel, label="Hol", pos=(25,85))
+        self.MeasureTitle.SetForegroundColour((165,214,167))
+        self.MeasureTitle.GetFont().SetPointSize(2300)
+        MeasureNameFont = self.MeasureTitle.GetFont()
+        MeasureNameFont.SetPointSize(50) 
+        MeasureNameFont = MeasureNameFont.Bold()
+        self.MeasureTitle.SetFont(MeasureNameFont)
 
         # Create a menu bar
         self.makeMenuBar()
@@ -51,6 +69,17 @@ class SeeSensorFrame(WX.Frame):
         # And a status bar
         self.CreateStatusBar()
         self.SetStatusText("See Sensor")
+
+        def TemperatureFunction(Measure):
+            return str(Measure) + " Hola"
+
+
+        self.Sensors = {
+            'Temperature': {
+                'Interpretate': TemperatureFunction,
+                'Name': 'Termistor'
+            }
+        }
 
 
 
@@ -63,23 +92,32 @@ class SeeSensorFrame(WX.Frame):
         OptionsMenu = WX.Menu()
         exitItem = OptionsMenu.Append(WX.ID_EXIT)
 
-        #=== GAME MENU ====
-        GameMenu = WX.Menu()
-        FinishItem  = GameMenu.Append(-1, "&Finish\tCtrl-F")
-        GameMenu.AppendSeparator()
+        #=== SENSOR MENU ====
+        MeasureMenu = WX.Menu()
+        StartItem  = MeasureMenu.Append(-1, "&Start Measure\tCtrl-Enter")
+        EndItem  = MeasureMenu.Append(-1, "&End Measure\tCtrl-Escape")
+        MeasureMenu.AppendSeparator()
+
+        #=== SENSOR MENU ====
+        SensorMenu = WX.Menu()
+        FinishItem  = SensorMenu.Append(-1, "&Finish\tCtrl-F")
+        SensorMenu.AppendSeparator()
 
         #=== GENERAL MENU ====
-        helpMenu = WX.Menu()
-        aboutItem = helpMenu.Append(WX.ID_ABOUT)
+        HelpMenu = WX.Menu()
+        aboutItem = HelpMenu.Append(WX.ID_ABOUT)
 
         #=== MENU BAR ====
         menuBar = WX.MenuBar()
         menuBar.Append(OptionsMenu, "&Options")
-        menuBar.Append(GameMenu, "&Game")
-        menuBar.Append(helpMenu, "&Help")
+        menuBar.Append(MeasureMenu, "&Measure")
+        menuBar.Append(SensorMenu, "&Sensor")
+        menuBar.Append(HelpMenu, "&Help")
         self.SetMenuBar(menuBar)
         
         #=== BIND ====
+        self.Bind(WX.EVT_MENU, self.OnMesuareStart, StartItem)
+        self.Bind(WX.EVT_MENU, self.OnMesuareEnd, EndItem)
         self.Bind(WX.EVT_MENU, self.OnFinish, FinishItem)
         self.Bind(WX.EVT_MENU, self.OnExit,  exitItem)
         self.Bind(WX.EVT_MENU, self.OnAbout, aboutItem)
@@ -89,24 +127,49 @@ class SeeSensorFrame(WX.Frame):
     =======            ON EXIT           =========
     ==========================================="""
     def OnExit(self, event):
-        """Close the frame, terminating the PlayPokerApplication."""
+        """Close the frame, terminating the ReadingSensorApplication."""
         self.Close(True)
+
+
+    """============================================
+    =======       START MEASURE           =========
+    ==========================================="""
+    def OnMesuareStart(self, event):
+        """Start the measure"""
+
+        Selected = "Temperature"
+        
+        Counter = 32
+
+        self.SensorTitle.SetLabel(self.Sensors[Selected]['Name'])
+
+        while True:
+            
+            SerialConection.write(str(chr(Counter)).encode())
+            Data = SerialConection.readline().decode() 
+            Data = self.Sensors[Selected]['Interpretate'](Data)
+
+            print(Data)
+            
+            self.MeasureTitle.SetLabel(Data)
+            WX.Yield()
+
+            Counter = (Counter + 1) % 255 
+
+    """============================================
+    =======         END MEASURE           =========
+    ==========================================="""
+    def OnMesuareEnd(self, event):
+        """Close stop the measure"""
+        pass
 
 
     """===========================================
     =======          ON FINISH           =========
     ==========================================="""
     def OnFinish(self, event):
-
-        Counter = 32
-
-        while True:
-            
-            SerialConection.write(str(chr(Counter)).encode())
-            print(SerialConection.readline().decode())
-            
-            Counter = (Counter + 1) % 255 
-
+        pass
+        
 
 
 
