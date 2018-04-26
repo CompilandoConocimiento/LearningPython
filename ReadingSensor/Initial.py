@@ -45,7 +45,7 @@ class SeeSensorFrame(WX.Frame):
         PanelTitle.SetFont(PanelFont)
 
         # ==== SensorName ======
-        self.SensorTitle = WX.StaticText(self.ReadingSensorPanel, label="Temperature", pos=(225,5))
+        self.SensorTitle = WX.StaticText(self.ReadingSensorPanel, label="", pos=(225,5))
         self.SensorTitle.SetForegroundColour((165,214,167))
         self.SensorTitle.GetFont().SetPointSize(2300)
         SensorNameFont = self.SensorTitle.GetFont()
@@ -54,8 +54,8 @@ class SeeSensorFrame(WX.Frame):
         self.SensorTitle.SetFont(SensorNameFont)
 
 
-        # ==== SensorName ======
-        self.MeasureTitle = WX.StaticText(self.ReadingSensorPanel, label="Hol", pos=(25,85))
+        # ==== MeasureName ======
+        self.MeasureTitle = WX.StaticText(self.ReadingSensorPanel, label="", pos=(25,85))
         self.MeasureTitle.SetForegroundColour((165,214,167))
         self.MeasureTitle.GetFont().SetPointSize(2300)
         MeasureNameFont = self.MeasureTitle.GetFont()
@@ -71,15 +71,24 @@ class SeeSensorFrame(WX.Frame):
         self.SetStatusText("See Sensor")
 
         def TemperatureFunction(Measure):
-            return str(Measure) + " Hola"
+            return str(Measure) + "from termistor"
 
+        def PreasureFunction(Measure):
+            return str(Measure) + "from preasure"
 
         self.Sensors = {
             'Temperature': {
                 'Interpretate': TemperatureFunction,
                 'Name': 'Termistor'
+            },
+            'Preasure': {
+                'Interpretate': PreasureFunction,
+                'Name': 'Preasure Sensor'
             }
         }
+
+        self.ContinueReading = True
+        self.Selected = "Temperature"
 
 
 
@@ -90,7 +99,8 @@ class SeeSensorFrame(WX.Frame):
 
         #=== OPTIONS MENU ====
         OptionsMenu = WX.Menu()
-        exitItem = OptionsMenu.Append(WX.ID_EXIT)
+        FinishItem  = OptionsMenu.Append(-1, "&Finish Program\tCtrl-E")
+        OptionsMenu.AppendSeparator()
 
         #=== SENSOR MENU ====
         MeasureMenu = WX.Menu()
@@ -100,7 +110,8 @@ class SeeSensorFrame(WX.Frame):
 
         #=== SENSOR MENU ====
         SensorMenu = WX.Menu()
-        FinishItem  = SensorMenu.Append(-1, "&Finish\tCtrl-F")
+        TermistorSensor  = SensorMenu.Append(-1, "&Select Termistor\tCtrl-1")
+        PreasureSensor  = SensorMenu.Append(-1, "&Select Preasure\tCtrl-2")
         SensorMenu.AppendSeparator()
 
         #=== GENERAL MENU ====
@@ -114,13 +125,18 @@ class SeeSensorFrame(WX.Frame):
         menuBar.Append(SensorMenu, "&Sensor")
         menuBar.Append(HelpMenu, "&Help")
         self.SetMenuBar(menuBar)
-        
+
+
+
         #=== BIND ====
         self.Bind(WX.EVT_MENU, self.OnMesuareStart, StartItem)
         self.Bind(WX.EVT_MENU, self.OnMesuareEnd, EndItem)
-        self.Bind(WX.EVT_MENU, self.OnFinish, FinishItem)
-        self.Bind(WX.EVT_MENU, self.OnExit,  exitItem)
-        self.Bind(WX.EVT_MENU, self.OnAbout, aboutItem)
+        self.Bind(WX.EVT_MENU, self.OnExit, FinishItem)
+        self.Bind(WX.EVT_MENU, lambda event: self.OnChange(event, "Temperature"), TermistorSensor)
+        self.Bind(WX.EVT_MENU, lambda event: self.OnChange(event, "Preasure"), PreasureSensor)
+
+
+
 
 
     """===========================================
@@ -136,18 +152,14 @@ class SeeSensorFrame(WX.Frame):
     ==========================================="""
     def OnMesuareStart(self, event):
         """Start the measure"""
-
-        Selected = "Temperature"
         
-        Counter = 32
-
-        self.SensorTitle.SetLabel(self.Sensors[Selected]['Name'])
-
-        while True:
+        self.ContinueReading = True
+        Counter = 42
+        while self.ContinueReading:
             
             SerialConection.write(str(chr(Counter)).encode())
             Data = SerialConection.readline().decode() 
-            Data = self.Sensors[Selected]['Interpretate'](Data)
+            Data = self.Sensors[self.Selected]['Interpretate'](Data)
 
             print(Data)
             
@@ -160,37 +172,20 @@ class SeeSensorFrame(WX.Frame):
     =======         END MEASURE           =========
     ==========================================="""
     def OnMesuareEnd(self, event):
-        """Close stop the measure"""
-        pass
+        """Stop the measure"""
+        self.ContinueReading = False
+        self.MeasureTitle.SetLabel("")
 
-
-    """===========================================
-    =======          ON FINISH           =========
-    ==========================================="""
-    def OnFinish(self, event):
-        pass
         
-
-
-
-
-
     """===========================================
-    =======          ON ABOUT            =========
+    =====      ON CHANGE SENSOR          =========
     ==========================================="""
-    def OnAbout(self, event):
-        """Display an About Dialog"""
-        WX.MessageBox("""
-            This is a simple app to play 'poker' ... or something
-            like this, I don't know what I'm doing""",
-            "Play Poker",
-            WX.OK|WX.ICON_INFORMATION)
+    def OnChange(self, event, Selected): 
 
-
-
-
-
-
+        self.Selected = Selected
+        self.ContinueReading = False
+        self.SensorTitle.SetLabel(self.Sensors[self.Selected]['Name'])
+        self.MeasureTitle.SetLabel("")
 
 
 
