@@ -71,7 +71,11 @@ class SeeSensorFrame(WX.Frame):
         self.SetStatusText("See Sensor")
 
         def TemperatureFunction(Measure):
-            return str(Measure) + "from termistor"
+            if Measure == "\r\n" or Measure[0] == "C": return "Start Reading"
+            Measure = Measure[:-2]
+            Measure = 5 * (int(Measure) / 255)
+            Measure *= 10
+            return "{:.3f}".format(Measure) + " °C"
 
         def PreasureFunction(Measure):
             return str(Measure) + "from preasure"
@@ -154,10 +158,8 @@ class SeeSensorFrame(WX.Frame):
         """Start the measure"""
         
         self.ContinueReading = True
-        Counter = 42
         while self.ContinueReading:
             
-            SerialConection.write(str(chr(Counter)).encode())
             Data = SerialConection.readline().decode() 
             Data = self.Sensors[self.Selected]['Interpretate'](Data)
 
@@ -166,7 +168,6 @@ class SeeSensorFrame(WX.Frame):
             self.MeasureTitle.SetLabel(Data)
             WX.Yield()
 
-            Counter = (Counter + 1) % 255 
 
     """============================================
     =======         END MEASURE           =========
